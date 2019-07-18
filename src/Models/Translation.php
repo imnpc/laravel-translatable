@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Translation extends Model
 {
-    protected $table = "sftranslation";
+    protected $table = "sf_translations";
+
     protected $fillable = ['lang', 'content', 'searchable'];
 
     public static function getCacheKeyByOneLanguage($model)

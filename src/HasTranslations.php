@@ -14,21 +14,21 @@ trait HasTranslations
 
     public static $defaultLocale = 'zh-TW';
 
-    public static function test($id, $key, $value)
-    {
-        $model = self::find($id);
-        var_dump($model->{$key});
-        $model->{$key} = $value;
-        $model->save();
-        var_dump($model->{$key});
-    }
+    // public static function test($id, $key, $value)
+    // {
+    //     $model = self::find($id);
+    //     var_dump($model->{$key});
+    //     $model->{$key} = $value;
+    //     $model->save();
+    //     var_dump($model->{$key});
+    // }
 
-    public static function test2($id, $lang, $key, $value)
-    {
-        $model = self::find($id);
-        $model->setTranslation($key, $lang, $value);
-        $model->save();
-    }
+    // public static function test2($id, $lang, $key, $value)
+    // {
+    //     $model = self::find($id);
+    //     $model->setTranslation($key, $lang, $value);
+    //     $model->save();
+    // }
 
     public function translation_relation()
     {
