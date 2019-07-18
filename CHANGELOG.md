@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-translatable` will be documented in this file
 
+## 5.0.0 - 2019-07-18
+
+- Change Translation in DB
+
 ## 4.1.3 - 2019-06-16
 
 - improve dependencies

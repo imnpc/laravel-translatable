@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Translatable\Test;
+namespace SolutionForest\Translatable\Test;
 
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;

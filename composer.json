@@ -10,7 +10,7 @@
         "i8n",
         "multilingual"
     ],
-    "homepage": "https://github.com/spatie/laravel-translatable",
+    "homepage": "https://github.com/solutionforest/laravel-translatable",
     "license": "MIT",
     "authors": [{
         "name": "Alan Lam",
@@ -30,12 +30,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Spatie\\Translatable\\": "src"
+            "SolutionForest\\Translatable\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Spatie\\Translatable\\Test\\": "tests"
+            "SolutionForest\\Translatable\\Test\\": "tests"
         }
     },
     "scripts": {
