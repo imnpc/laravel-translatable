@@ -1,11 +1,8 @@
 # A trait to make Eloquent models translatable
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/spatie/laravel-translatable.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-translatable)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/solutionforest/laravel-translatable.svg?style=flat-square)](https://packagist.org/packages/solutionforest/laravel-translatable)
 [![MIT Licensed](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
-[![Build Status](https://img.shields.io/travis/spatie/laravel-translatable/master.svg?style=flat-square)](https://travis-ci.org/spatie/laravel-translatable)
-[![Quality Score](https://img.shields.io/scrutinizer/g/spatie/laravel-translatable.svg?style=flat-square)](https://scrutinizer-ci.com/g/spatie/laravel-translatable)
-[![StyleCI](https://styleci.io/repos/55690447/shield?branch=master)](https://styleci.io/repos/55690447)
-[![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-translatable.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-translatable)
+[![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-translatable.svg?style=flat-square)](https://packagist.org/packages/solutionforest/laravel-translatable)
 
 This package contains a trait to make Eloquent models translatable. 
 Translations are stored in Database.
@@ -155,7 +152,7 @@ $newsItem->setTranslations('name', $translations);
 ### Events
 
 #### TranslationHasBeenSet
-Right after calling `setTranslation` the `Spatie\Translatable\Events\TranslationHasBeenSet`-event will be fired.
+Right after calling `setTranslation` the `SolutionForest\Translatable\Events\TranslationHasBeenSet`-event will be fired.
 
 It has these properties:
 ```php
@@ -184,24 +181,9 @@ NewsItem::create([
 ]);
 ```
 
-### Querying translatable attributes
-
-If you're using MySQL 5.7 or above, it's recommended that you use the json data type for housing translations in the db.
-This will allow you to query these columns like this:
-
-```php
-NewsItem::where('name->en', 'Name in English')->get();
-```
-
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information what has changed recently.
-
-## Upgrading 
-
-### From v2 to v3
-
-In most cases you can upgrade without making any changes to your codebase at all. `v3` introduced a `translations` accessor on your models. If you already had one defined on your model, you'll need to rename it.
 
 ## Testing
 
@@ -215,15 +197,7 @@ Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## Security
 
-If you discover any security related issues, please email freek@spatie.be instead of using the issue tracker.
-
-## Postcardware
-
-You're free to use this package, but if it makes it to your production environment we highly appreciate you sending us a postcard from your hometown, mentioning which of our package(s) you are using.
-
-Our address is: Spatie, Samberstraat 69D, 2060 Antwerp, Belgium.
-
-We publish all received postcards [on our company website](https://spatie.be/en/opensource/postcards).
+If you discover any security related issues, please email alan@solutionforest.net instead of using the issue tracker.
 
 ## Credits
 
@@ -235,10 +209,7 @@ We got the idea to store translations as json in a column from [Mohamed Said](ht
 
 ## Support us
 
-Spatie is a webdesign agency based in Antwerp, Belgium. You'll find an overview of all our open source projects [on our website](https://spatie.be/opensource).
-
-Does your business depend on our contributions? Reach out and support us on [Patreon](https://www.patreon.com/spatie). 
-All pledges will be dedicated to allocating workforce on maintenance and new awesome stuff.
+SolutionForest is a solution house based in Hong Kong.[on our website](https://solutionforest.net).
 
 ## License
 
