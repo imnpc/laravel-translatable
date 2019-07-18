@@ -1,6 +1,6 @@
 <?php
 
-namespace Spatie\Translatable\Exceptions;
+namespace SolutionForest\Translatable\Exceptions;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;

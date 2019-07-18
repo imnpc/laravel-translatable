@@ -1,12 +1,12 @@
 <?php
 
-namespace Spatie\Translatable\Events;
+namespace SolutionForest\Translatable\Events;
 
 use Illuminate\Database\Eloquent\Model;
 
 class TranslationHasBeenSet
 {
-    /** @var \Spatie\Translatable\Translatable */
+    /** @var \SolutionForest\Translatable\Translatable */
     public $model;
 
     /** @var string */

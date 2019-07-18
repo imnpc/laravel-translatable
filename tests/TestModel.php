@@ -1,9 +1,9 @@
 <?php
 
-namespace Spatie\Translatable\Test;
+namespace SolutionForest\Translatable\Test;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Translatable\HasTranslations;
+use SolutionForest\Translatable\HasTranslations;
 
 class TestModel extends Model
 {

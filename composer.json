@@ -1,8 +1,8 @@
 {
-    "name": "spatie/laravel-translatable",
+    "name": "solutionforest/laravel-translatable",
     "description": "A trait to make an Eloquent model hold translations",
     "keywords": [
-        "spatie",
+        "solutionforest",
         "laravel-translatable",
         "translate",
         "eloquent",
@@ -12,27 +12,14 @@
     ],
     "homepage": "https://github.com/spatie/laravel-translatable",
     "license": "MIT",
-    "authors": [
-        {
-            "name": "Freek Van der Herten",
-            "email": "freek@spatie.be",
-            "homepage": "https://spatie.be",
-            "role": "Developer"
-        },
-        {
-            "name": "Sebastian De Deyne",
-            "email": "sebastian@spatie.be",
-            "homepage": "https://spatie.be",
-            "role": "Developer"
-        },
-        {
-            "name": "Mohamed Said",
-            "email": "theMohamedSaid@gmail.com",
-            "role": "Original idea"
-        }
-    ],
+    "authors": [{
+        "name": "Alan Lam",
+        "email": "alan@solutionforest.net",
+        "homepage": "https://solutionforest.net",
+        "role": "Developer"
+    }],
     "require": {
-        "php" : "^7.2",
+        "php": "^7.2",
         "illuminate/database": "~5.8.0",
         "illuminate/support": "~5.8.0"
     },
@@ -56,5 +43,15 @@
     },
     "config": {
         "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SolutionForest\\Translatable\\SFTranslationServiceProvider"
+            ],
+            "aliases": {
+                "SimplePackage": "SolutionForest\\Translatable\\SFTranslationServiceFacade"
+            }
+        }
     }
 }

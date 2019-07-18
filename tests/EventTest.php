@@ -1,12 +1,12 @@
 <?php
 
-namespace Spatie\Translatable\Test;
+namespace SolutionForest\Translatable\Test;
 
-use Spatie\Translatable\Events\TranslationHasBeenSet;
+use SolutionForest\Translatable\Events\TranslationHasBeenSet;
 
 class EventTest extends TestCase
 {
-    /** @var \Spatie\Translatable\Test\TestModel */
+    /** @var \SolutionForest\Translatable\Test\TestModel */
     protected $testModel;
 
     public function setUp(): void
