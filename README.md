@@ -7,7 +7,9 @@
 [![StyleCI](https://styleci.io/repos/55690447/shield?branch=master)](https://styleci.io/repos/55690447)
 [![Total Downloads](https://img.shields.io/packagist/dt/spatie/laravel-translatable.svg?style=flat-square)](https://packagist.org/packages/spatie/laravel-translatable)
 
-This package contains a trait to make Eloquent models translatable. Translations are stored as json. There is no extra table needed to hold them.
+This package contains a trait to make Eloquent models translatable. 
+Translations are stored in Database.
+All translation will be cached by default Laravel Cache.
 
 Once the trait is installed on the model you can do these things:
 
@@ -31,22 +33,22 @@ $newsItem->name; // Returns 'Naam in het Nederlands'
 You can install the package via composer:
 
 ``` bash
-composer require spatie/laravel-translatable
+composer require solutionforest/laravel-translatable
 ```
 
 ## Making a model translatable
 
 The required steps to make a model translatable are:
 
-- First, you need to add the `Spatie\Translatable\HasTranslations`-trait.
+- First, `php artisian migrate` migrate the table 
+- Next, you need to add the `SolutionForest\Translatable\HasTranslations`-trait.
 - Next, you should create a public property `$translatable` which holds an array with all the names of attributes you wish to make translatable.
-- Finally, you should make sure that all translatable attributes are set to the `text`-datatype in your database. If your database supports `json`-columns, use that.
 
 Here's an example of a prepared model:
 
 ``` php
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Translatable\HasTranslations;
+use SolutionForest\Translatable\HasTranslations;
 
 class NewsItem extends Model
 {
