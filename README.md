@@ -8,7 +8,7 @@ This package contains a trait to make Eloquent models translatable.
 Translations are stored in Database.
 All translation will be cached by default Laravel Cache.
 
-# This Library forked from [spatie/laravel-translatable](https://github.com/spatie/laravel-translatable) 
+## This Library forked from [spatie/laravel-translatable](https://github.com/spatie/laravel-translatable) 
 Technically, all methods are same. Use database as storage only.
 
 Once the trait is installed on the model you can do these things:
