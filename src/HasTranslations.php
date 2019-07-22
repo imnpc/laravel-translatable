@@ -12,27 +12,17 @@ use SolutionForest\Translatable\Models\Translation;
 trait HasTranslations
 {
 
-    public static $defaultLocale = 'zh-TW';
+    public static $defaultLocale = 'en';
+    public static $modifyToArrayAttributes = false;
 
-    // public static function test($id, $key, $value)
-    // {
-    //     $model = self::find($id);
-    //     var_dump($model->{$key});
-    //     $model->{$key} = $value;
-    //     $model->save();
-    //     var_dump($model->{$key});
-    // }
-
-    // public static function test2($id, $lang, $key, $value)
-    // {
-    //     $model = self::find($id);
-    //     $model->setTranslation($key, $lang, $value);
-    //     $model->save();
-    // }
+    public static function setModifyToArrayAttributes($canModify)
+    {
+        self::$modifyToArrayAttributes = $canModify;
+    }
 
     public function translation_relation()
     {
-        return $this->morphMany('App\Models\Translation', 'translatable');
+        return $this->morphMany('SolutionForest\Translatable\Models\Translation', 'translatable');
     }
 
     public function getAttributeValue($key)
@@ -46,8 +36,12 @@ trait HasTranslations
     public function setAttribute($key, $value)
     {
         // Pass arrays and untranslatable attributes to the parent method.
-        if (!$this->isTranslatableAttribute($key) || is_array($value)) {
+        if (!$this->isTranslatableAttribute($key)) {
             return parent::setAttribute($key, $value);
+        }
+
+        if (is_array($value)) {
+            return $this->setTranslations($key, $value);
         }
         // If the attribute is translatable and not already translated, set a
         // translation for the current app locale.
@@ -259,5 +253,18 @@ trait HasTranslations
                 return [$key => $this->getTranslations($key)];
             })
             ->toArray();
+    }
+
+    public function attributesToArray()
+    {
+        $attributes = parent::attributesToArray();
+        if (self::$modifyToArrayAttributes) {
+            foreach ($attributes as $key => $v) {
+                if ($this->isTranslatableAttribute($key)) {
+                    $attributes[$key] = $this->getTranslations($key);
+                }
+            }
+        }
+        return $attributes;
     }
 }
