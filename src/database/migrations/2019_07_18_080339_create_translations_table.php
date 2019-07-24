@@ -18,8 +18,8 @@ class CreateTranslationsTable extends Migration
             $table->integer('translatable_id');
             $table->string('translatable_type', 250);
             $table->string('lang', 20);
-            $table->char('searchable', 1);
-            $table->text('content', 1);
+            $table->char('searchable', 1)->default(0);
+            $table->text('content')->nullable(true);
             $table->string('content_key', 250);
             $table->timestamps();
         });
