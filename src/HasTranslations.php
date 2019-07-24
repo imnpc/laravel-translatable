@@ -19,10 +19,11 @@ trait HasTranslations
 
     public function getAttributeValue($key)
     {
+
         if (!$this->isTranslatableAttribute($key)) {
             return parent::getAttributeValue($key);
         }
-
+        dd($key);
         $value = $this->getTranslation($key, $this->getLocale());
 
         return $value ?? parent::getAttributeValue($key);
@@ -72,6 +73,11 @@ trait HasTranslations
     public function getCurrentLocaleTranslateByFieldKey($key, $lang = null): Translation
     {
         $cacheKey = Translation::getCacheKeyByOneLanguageFromValue($this->id, self::class, $lang ?? $this->getLocale(), $key);
+
+        if (HasTranslationsConfig::$disableCache) {
+            Cache::forget($cacheKey);
+        }
+
         return Cache::rememberForever($cacheKey, function () use ($key, $lang) {
             if ($t = Translation::where('translatable_id', $this->id)
                 ->where('translatable_type', self::class)
@@ -101,6 +107,11 @@ trait HasTranslations
     public function getAllTranslateContentByFieldKey($key)
     {
         $cacheKey = Translation::getCacheKeyFromValue($this->id, self::class, $key);
+
+        if (HasTranslationsConfig::$disableCache) {
+            Cache::forget($cacheKey);
+        }
+
         return Cache::rememberForever($cacheKey, function () use ($key) {
             $t = Translation::where('translatable_id', $this->id)
                 ->where('translatable_type', self::class)
@@ -265,6 +276,12 @@ trait HasTranslations
             foreach ($attributes as $key => $v) {
                 if ($this->isTranslatableAttribute($key)) {
                     $attributes[$key] = $this->getTranslations($key);
+                }
+            }
+        } else {
+            foreach ($attributes as $key => $v) {
+                if ($this->isTranslatableAttribute($key)) {
+                    $attributes[$key] = $this->getTranslation($key, config('app.locale'));
                 }
             }
         }
