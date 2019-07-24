@@ -23,7 +23,7 @@ trait HasTranslations
         if (!$this->isTranslatableAttribute($key)) {
             return parent::getAttributeValue($key);
         }
-        dd($key);
+
         $value = $this->getTranslation($key, $this->getLocale());
 
         return $value ?? parent::getAttributeValue($key);
