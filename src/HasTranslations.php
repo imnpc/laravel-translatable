@@ -2,6 +2,7 @@
 
 namespace SolutionForest\Translatable;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Cache;
@@ -11,15 +12,28 @@ use SolutionForest\Translatable\Models\Translation;
 
 trait HasTranslations
 {
+    public $newTranslations;
 
     public function translation_relation()
     {
         return $this->morphMany('SolutionForest\Translatable\Models\Translation', 'translatable');
     }
 
+    public function pushNewTranslation($key, $isSearchable, $content, $locale)
+    {
+        if (!$this->newTranslations) {
+            $this->newTranslations = new Collection();
+        }
+        $this->newTranslations->push([
+            'key' => $key,
+            'isSearchable' => $isSearchable,
+            'content' => $content,
+            'locale' => $locale,
+        ]);
+    }
+
     public function getAttributeValue($key)
     {
-
         if (!$this->isTranslatableAttribute($key)) {
             return parent::getAttributeValue($key);
         }
@@ -118,10 +132,10 @@ trait HasTranslations
                 ->where('content_key', $key)
                 ->get();
 
-            return count($t) > 0 ? $t->map(function ($item) {
+            return count($t) > 0 ? $t->map(function ($item) use ($key) {
                 $content = $item->content ?? '';
                 if ($item->lang == HasTranslationsConfig::$defaultLocale && empty($content)) {
-                    $content = $this->{$key};
+                    $content = $this->{$key} ?? '';
                 }
                 return ['lang' => $item->lang, 'value' => $content];
             })
@@ -159,7 +173,11 @@ trait HasTranslations
         if ($locale == HasTranslationsConfig::$defaultLocale) {
             $this->attributes[$key] = $value;
         }
-        if ($oldValue !== $value) {
+        if (!$this->exists) {
+            $this->pushNewTranslation($key, $this->isTranslateSearchableAttribute($key) ? 1 : 0, $value, $locale);
+            return $this;
+        }
+        if ($oldValue !== $value && count($this->toArray()) != 0) {
             $tModel = $this->getCurrentLocaleTranslateByFieldKey($key, $locale);
             $tModel->searchable = $this->isTranslateSearchableAttribute($key) ? 1 : 0;
             $tModel->content = $value;
@@ -177,6 +195,22 @@ trait HasTranslations
             $this->setTranslation($key, $locale, $translation);
         }
         return $this;
+    }
+
+    public function updateStackTranslation()
+    {
+        if ($this->newTranslations && $this->newTranslations->count() > 0) {
+            $this->newTranslations->each(function ($item) {
+                $t = new Translation();
+                $t->translatable_id = $this->id;
+                $t->translatable_type = self::class;
+                $t->lang = $item['locale'];
+                $t->searchable = $item['isSearchable'];
+                $t->content_key = $item['key'];
+                $t->content = $item['content'];
+                $t->save();
+            });
+        }
     }
 
     public function forgetTranslation(string $key, string $locale): self
@@ -272,6 +306,7 @@ trait HasTranslations
     public function attributesToArray()
     {
         $attributes = parent::attributesToArray();
+
         if (HasTranslationsConfig::$modifyToArrayAttributes) {
             foreach ($attributes as $key => $v) {
                 if ($this->isTranslatableAttribute($key)) {
@@ -286,5 +321,20 @@ trait HasTranslations
             }
         }
         return $attributes;
+    }
+
+    /**
+     * Save the model to the database.
+     *
+     * @param  array $options
+     * @return bool
+     */
+    public function save(array $options = [])
+    {
+        $saved = parent::save($options);
+        // For First time Translation, Current Model do not include ID ,
+        // we need update it later.
+        $this->updateStackTranslation();
+        return $saved;
     }
 }
