@@ -200,7 +200,9 @@ trait HasTranslations
     public function updateStackTranslation()
     {
         if ($this->newTranslations && $this->newTranslations->count() > 0) {
+
             $this->newTranslations->each(function ($item) {
+
                 $t = new Translation();
                 $t->translatable_id = $this->id;
                 $t->translatable_type = self::class;
@@ -209,7 +211,9 @@ trait HasTranslations
                 $t->content_key = $item['key'];
                 $t->content = $item['content'];
                 $t->save();
-                $this->forgetTranslation($item['key'], $item['locale']);
+
+                $cacheKey = Translation::getCacheKeyByOneLanguageFromValue($this->id, self::class, $item['locale'], $item['key']);
+                Cache::forget($cacheKey);
             });
         }
     }
