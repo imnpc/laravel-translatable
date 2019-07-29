@@ -209,6 +209,7 @@ trait HasTranslations
                 $t->content_key = $item['key'];
                 $t->content = $item['content'];
                 $t->save();
+                $this->forgetTranslation($item['key'], $item['locale']);
             });
         }
     }
