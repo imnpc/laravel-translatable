@@ -321,7 +321,7 @@ trait HasTranslations
         } else {
             foreach ($attributes as $key => $v) {
                 if ($this->isTranslatableAttribute($key)) {
-                    $attributes[$key] = $this->getTranslation($key, config('app.locale'));
+                    $attributes[$key] = $this->getTranslation($key, $this->getLocale());
                 }
             }
         }
