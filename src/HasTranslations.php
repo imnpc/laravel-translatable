@@ -51,11 +51,16 @@ trait HasTranslations
         }
 
         if (is_array($value)) {
-            return $this->setTranslations($key, $value);
+            $this->setTranslations($key, $value);
+        }else{
+           // If the attribute is translatable and not already translated, set a
+           // translation for the current app locale.
+           $this->setTranslation($key, $this->getLocale(), $value);
         }
-        // If the attribute is translatable and not already translated, set a
-        // translation for the current app locale.
-        return $this->setTranslation($key, $this->getLocale(), $value);
+
+        $value = $this->getTranslation($key, $this->getLocale());
+
+        return parent::setAttribute($key, $value);
     }
 
     public function translate(string $key, string $locale = ''): string
@@ -170,7 +175,7 @@ trait HasTranslations
             $value = $this->attributes[$key];
         }
         $translations[$locale] = $value;
-        if ($locale == HasTranslationsConfig::$defaultLocale) {
+        if ($locale == config('app.locale') ?? HasTranslationsConfig::$defaultLocale) {
             $this->attributes[$key] = $value;
         }
         if (!$this->exists) {
