@@ -22,9 +22,9 @@ trait HasTranslations
 
     public function translation_relation()
     {
-        return $this->morphMany('SolutionForest\Translatable\Models\Translation', 'translatable')
-            ->where('lang', $lang ?? $this->getLocale());
+        return $this->morphMany('SolutionForest\Translatable\Models\Translation', 'translatable');
     }
+
 
     public function pushNewTranslation($key, $isSearchable, $content, $locale)
     {
@@ -34,7 +34,7 @@ trait HasTranslations
         $this->newTranslations->push([
             'key' => $key,
             'isSearchable' => $isSearchable,
-            'content' => $content,
+            'content' => is_array($content) ? json_encode($content) : $content,
             'locale' => $locale,
         ]);
     }
@@ -45,13 +45,7 @@ trait HasTranslations
             return parent::getAttributeValue($key);
         }
 
-        // $value = $this->getTranslation($key, $this->getLocale());
-        
-        if($obj = $this->translation_relation->where('content_key', $key)->first()){
-            $value = $obj->content;
-        }else {
-            $value = $this->getTranslation($key, $this->getLocale());
-        }
+        $value = $this->getTranslation($key, $this->getLocale());
 
         return $value ?? parent::getAttributeValue($key);
     }
@@ -62,13 +56,13 @@ trait HasTranslations
         if (!$this->isTranslatableAttribute($key)) {
             return parent::setAttribute($key, $value);
         }
-
+        // ray([$key=>$value]);
         if (is_array($value)) {
             $this->setTranslations($key, $value);
         }else{
-           // If the attribute is translatable and not already translated, set a
-           // translation for the current app locale.
-           $this->setTranslation($key, $this->getLocale(), $value);
+            // If the attribute is translatable and not already translated, set a
+            // translation for the current app locale.
+            $this->setTranslation($key, $this->getLocale(), $value);
         }
 
         $value = $this->getTranslation($key, $this->getLocale());
@@ -78,6 +72,7 @@ trait HasTranslations
 
     public function translate(string $key, string $locale = ''): string
     {
+
         return $this->getTranslation($key, $locale);
     }
 
@@ -132,6 +127,7 @@ trait HasTranslations
 
     public function getCurrentLocaleTranslateContentByFieldKey($key)
     {
+
         $t = $this->getCurrentLocaleTranslateByFieldKey($key);
         return $t ? $t->content : '';
     }
@@ -144,7 +140,21 @@ trait HasTranslations
             Cache::forget($cacheKey);
         }
 
+
         return Cache::rememberForever($cacheKey, function () use ($key) {
+
+            if($obj = $this->translation_relation->where('content_key', $key)){
+                return $obj->map(function ($item) use ($key) {
+                    $content = $item->content ?? '';
+                    if ($item->lang == HasTranslationsConfig::$defaultLocale && empty($content)) {
+                        $content = $this->{$key} ?? '';
+                    }
+                    return ['lang' => $item->lang, 'value' => $content];
+                })
+                    ->pluck('value', 'lang')
+                    ->toArray();
+            }
+
             $t = Translation::where('translatable_id', $this->id)
                 ->where('translatable_type', self::class)
                 ->where('content_key', $key)
@@ -166,7 +176,15 @@ trait HasTranslations
     {
         if ($key !== null) {
             $this->guardAgainstNonTranslatableAttribute($key);
-            return ($this->getAllTranslateContentByFieldKey($key));
+            $translations = $this->getAllTranslateContentByFieldKey($key);
+            // ray([$key=>$this->getAttributes()]);
+
+            if(($translations[config('app.locale')]??null) == null && array_key_exists($key,$this->getAttributes())){
+                $translation = array_merge($translations,[config('app.locale')=>$this->getAttributes()[$key]]);
+            }else{
+                $translation = $translations;
+            }
+            return ($translation);
         }
         return array_reduce(
             $this->getTranslatableAttributes(),
@@ -190,18 +208,22 @@ trait HasTranslations
         $translations[$locale] = $value;
         if ($locale == config('app.locale') ?? HasTranslationsConfig::$defaultLocale) {
             $this->attributes[$key] = $value;
+
         }
+
         if (!$this->exists) {
             $this->pushNewTranslation($key, $this->isTranslateSearchableAttribute($key) ? 1 : 0, $value, $locale);
             return $this;
         }
+
         if ($oldValue !== $value && count($this->toArray()) != 0) {
             $tModel = $this->getCurrentLocaleTranslateByFieldKey($key, $locale);
             $tModel->searchable = $this->isTranslateSearchableAttribute($key) ? 1 : 0;
-            $tModel->content = $value;
+            $tModel->content = is_array($value) ? json_encode($value) : $value;
             $tModel->save();
             event(new TranslationHasBeenSet($this, $key, $locale, $oldValue, $value));
         }
+
         return $this;
     }
 
@@ -209,6 +231,7 @@ trait HasTranslations
     public function setTranslations(string $key, array $translations): self
     {
         $this->guardAgainstNonTranslatableAttribute($key);
+
         foreach ($translations as $locale => $translation) {
             $this->setTranslation($key, $locale, $translation);
         }
@@ -359,5 +382,51 @@ trait HasTranslations
         // we need update it later.
         $this->updateStackTranslation();
         return $saved;
+    }
+
+    public function fromJson($value, $asObject = false)
+    {
+        return is_array($value) ? $value : json_decode($value, ! $asObject);
+    }
+
+    public static function translateSelectOptions(\Closure $closure = null, $rootText = null)
+    {
+        $rootText = $rootText ?: admin_trans_label('root');
+
+        $options = (new static())->withQuery($closure)->buildTranslateSelectOptions();
+
+        return collect($options)->prepend($rootText, 0)->all();
+    }
+
+    public function buildTranslateSelectOptions(array $nodes = [], $parentId = 0, $prefix = '', $space = '&nbsp;')
+    {
+        $d = '├─';
+        $prefix = $prefix ?: $d.$space;
+
+        $options = [];
+
+        if (empty($nodes)) {
+            $nodes = $this->allNodes()->toArray();
+        }
+
+        foreach ($nodes as $index => $node) {
+            if ($node[$this->getParentColumn()] == $parentId) {
+                $currentPrefix = $this->hasNextSibling($nodes, $node[$this->getParentColumn()], $index) ? $prefix : str_replace($d, '└─', $prefix);
+
+                $node[$this->getTitleColumn()] = $currentPrefix.$space.$node[$this->getTitleColumn()][config('app.locale')];
+
+                $childrenPrefix = str_replace($d, str_repeat($space, 6), $prefix).$d.str_replace([$d, $space], '', $prefix);
+
+                $children = $this->buildTranslateSelectOptions($nodes, $node[$this->getKeyName()], $childrenPrefix);
+
+                $options[$node[$this->getKeyName()]] = $node[$this->getTitleColumn()];
+
+                if ($children) {
+                    $options += $children;
+                }
+            }
+        }
+
+        return $options;
     }
 }
