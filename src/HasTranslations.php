@@ -56,7 +56,7 @@ trait HasTranslations
         if (!$this->isTranslatableAttribute($key)) {
             return parent::setAttribute($key, $value);
         }
-        // ray([$key=>$value]);
+        
         if (is_array($value)) {
             $this->setTranslations($key, $value);
         }else{
@@ -389,44 +389,5 @@ trait HasTranslations
         return is_array($value) ? $value : json_decode($value, ! $asObject);
     }
 
-    public static function translateSelectOptions(\Closure $closure = null, $rootText = null)
-    {
-        $rootText = $rootText ?: admin_trans_label('root');
 
-        $options = (new static())->withQuery($closure)->buildTranslateSelectOptions();
-
-        return collect($options)->prepend($rootText, 0)->all();
-    }
-
-    public function buildTranslateSelectOptions(array $nodes = [], $parentId = 0, $prefix = '', $space = '&nbsp;')
-    {
-        $d = '├─';
-        $prefix = $prefix ?: $d.$space;
-
-        $options = [];
-
-        if (empty($nodes)) {
-            $nodes = $this->allNodes()->toArray();
-        }
-
-        foreach ($nodes as $index => $node) {
-            if ($node[$this->getParentColumn()] == $parentId) {
-                $currentPrefix = $this->hasNextSibling($nodes, $node[$this->getParentColumn()], $index) ? $prefix : str_replace($d, '└─', $prefix);
-
-                $node[$this->getTitleColumn()] = $currentPrefix.$space.$node[$this->getTitleColumn()][config('app.locale')];
-
-                $childrenPrefix = str_replace($d, str_repeat($space, 6), $prefix).$d.str_replace([$d, $space], '', $prefix);
-
-                $children = $this->buildTranslateSelectOptions($nodes, $node[$this->getKeyName()], $childrenPrefix);
-
-                $options[$node[$this->getKeyName()]] = $node[$this->getTitleColumn()];
-
-                if ($children) {
-                    $options += $children;
-                }
-            }
-        }
-
-        return $options;
-    }
 }
