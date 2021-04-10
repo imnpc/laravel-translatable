@@ -234,6 +234,8 @@ trait HasTranslations
 
         foreach ($translations as $locale => $translation) {
             $this->setTranslation($key, $locale, $translation);
+            $cacheKey = Translation::getCacheKeyByOneLanguageFromValue($this->id, self::class, $lang ?? $this->getLocale(), $key);
+            Cache::forget($cacheKey);
         }
         return $this;
     }
@@ -255,6 +257,7 @@ trait HasTranslations
 
                 $cacheKey = Translation::getCacheKeyByOneLanguageFromValue($this->id, self::class, $item['locale'], $item['key']);
                 Cache::forget($cacheKey);
+                
             });
         }
     }
