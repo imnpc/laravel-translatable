@@ -14,11 +14,11 @@ trait HasTranslations
 {
     public $newTranslations;
 
-    public function __construct()
-    {
-        parent::__construct();
-        $this->with[] = 'translation_relation';
-    }
+    // public function __construct()
+    // {
+    //     parent::__construct();
+    //     $this->with[] = 'translation_relation';
+    // }
 
     public function translation_relation()
     {
@@ -238,8 +238,9 @@ trait HasTranslations
 
         $cacheKey = Translation::getCacheKeyFromValue($this->id, self::class, $key);
         Cache::forget($cacheKey);
+
         $this->refresh();
-        
+
         return $this;
     }
 
@@ -262,6 +263,8 @@ trait HasTranslations
                 Cache::forget($cacheKey);
                 
             });
+
+            $this->refresh();
         }
     }
 
@@ -274,7 +277,9 @@ trait HasTranslations
             ->delete();
         $cacheKey = Translation::getCacheKeyFromValue($this->id, self::class, $key);
         Cache::forget($cacheKey);
+        
         $this->refresh();
+
         return $this;
     }
 
