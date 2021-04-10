@@ -14,9 +14,16 @@ trait HasTranslations
 {
     public $newTranslations;
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->with[] = 'translation_relation';
+    }
+
     public function translation_relation()
     {
-        return $this->morphMany('SolutionForest\Translatable\Models\Translation', 'translatable');
+        return $this->morphMany('SolutionForest\Translatable\Models\Translation', 'translatable')
+            ->where('lang', $lang ?? $this->getLocale());
     }
 
     public function pushNewTranslation($key, $isSearchable, $content, $locale)
@@ -38,7 +45,13 @@ trait HasTranslations
             return parent::getAttributeValue($key);
         }
 
-        $value = $this->getTranslation($key, $this->getLocale());
+        // $value = $this->getTranslation($key, $this->getLocale());
+        
+        if($obj = $this->translation_relation->where('content_key', $key)->first()){
+            $value = $obj->content;
+        }else {
+            $value = $this->getTranslation($key, $this->getLocale());
+        }
 
         return $value ?? parent::getAttributeValue($key);
     }
