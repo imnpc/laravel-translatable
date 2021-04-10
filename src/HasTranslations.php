@@ -143,6 +143,7 @@ trait HasTranslations
 
         return Cache::rememberForever($cacheKey, function () use ($key) {
 
+            $this->fresh();
             if($obj = $this->translation_relation->where('content_key', $key)){
                 return $obj->map(function ($item) use ($key) {
                     $content = $item->content ?? '';
@@ -177,7 +178,6 @@ trait HasTranslations
         if ($key !== null) {
             $this->guardAgainstNonTranslatableAttribute($key);
             $translations = $this->getAllTranslateContentByFieldKey($key);
-            // ray([$key=>$this->getAttributes()]);
 
             if(($translations[config('app.locale')]??null) == null && array_key_exists($key,$this->getAttributes())){
                 $translation = array_merge($translations,[config('app.locale')=>$this->getAttributes()[$key]]);
@@ -234,9 +234,12 @@ trait HasTranslations
 
         foreach ($translations as $locale => $translation) {
             $this->setTranslation($key, $locale, $translation);
-            $cacheKey = Translation::getCacheKeyByOneLanguageFromValue($this->id, self::class, $locale, $key);
-            Cache::forget($cacheKey);
         }
+
+        $cacheKey = Translation::getCacheKeyFromValue($this->id, self::class, $key);
+        Cache::forget($cacheKey);
+        $this->refresh();
+        
         return $this;
     }
 
@@ -271,6 +274,7 @@ trait HasTranslations
             ->delete();
         $cacheKey = Translation::getCacheKeyFromValue($this->id, self::class, $key);
         Cache::forget($cacheKey);
+        $this->refresh();
         return $this;
     }
 
