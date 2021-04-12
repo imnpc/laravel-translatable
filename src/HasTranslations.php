@@ -14,11 +14,11 @@ trait HasTranslations
 {
     public $newTranslations;
 
-    // public function __construct()
-    // {
-    //     parent::__construct();
-    //     $this->with[] = 'translation_relation';
-    // }
+//    public function __construct()
+//    {
+//        parent::__construct();
+//        $this->with[] = 'translation_relation';
+//    }
 
     public function translation_relation()
     {
@@ -56,7 +56,7 @@ trait HasTranslations
         if (!$this->isTranslatableAttribute($key)) {
             return parent::setAttribute($key, $value);
         }
-        
+
         if (is_array($value)) {
             $this->setTranslations($key, $value);
         }else{
@@ -143,7 +143,6 @@ trait HasTranslations
 
         return Cache::rememberForever($cacheKey, function () use ($key) {
 
-            $this->fresh();
             if($obj = $this->translation_relation->where('content_key', $key)){
                 return $obj->map(function ($item) use ($key) {
                     $content = $item->content ?? '';
@@ -178,6 +177,7 @@ trait HasTranslations
         if ($key !== null) {
             $this->guardAgainstNonTranslatableAttribute($key);
             $translations = $this->getAllTranslateContentByFieldKey($key);
+            // ray([$key=>$this->getAttributes()]);
 
             if(($translations[config('app.locale')]??null) == null && array_key_exists($key,$this->getAttributes())){
                 $translation = array_merge($translations,[config('app.locale')=>$this->getAttributes()[$key]]);
@@ -235,12 +235,6 @@ trait HasTranslations
         foreach ($translations as $locale => $translation) {
             $this->setTranslation($key, $locale, $translation);
         }
-
-        $cacheKey = Translation::getCacheKeyFromValue($this->id, self::class, $key);
-        Cache::forget($cacheKey);
-
-        $this->refresh();
-
         return $this;
     }
 
@@ -261,10 +255,7 @@ trait HasTranslations
 
                 $cacheKey = Translation::getCacheKeyByOneLanguageFromValue($this->id, self::class, $item['locale'], $item['key']);
                 Cache::forget($cacheKey);
-                
             });
-
-            $this->refresh();
         }
     }
 
@@ -277,9 +268,6 @@ trait HasTranslations
             ->delete();
         $cacheKey = Translation::getCacheKeyFromValue($this->id, self::class, $key);
         Cache::forget($cacheKey);
-        
-        $this->refresh();
-
         return $this;
     }
 
