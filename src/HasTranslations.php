@@ -106,8 +106,12 @@ trait HasTranslations
         }
 
         return Cache::rememberForever($cacheKey, function () use ($key, $lang) {
+            if($obj = $this->translation_relation->where('content_key', $key)->where('lang',$lang)){
+                return $obj->first();
+            }
 
-        if ($t = Translation::where('translatable_id', $this->id)
+
+            if ($t = Translation::where('translatable_id', $this->id)
                 ->where('translatable_type', self::class)
                 ->where('lang', $lang ?? $this->getLocale())
                 ->where('content_key', $key)
@@ -219,11 +223,13 @@ trait HasTranslations
         }
 
         if ($oldValue !== $value && count($this->toArray()) != 0) {
+
             $cacheKey = Translation::getCacheKeyFromValue($this->id, self::class, $key);
             Cache::forget($cacheKey);
             $cacheKey = Translation::getCacheKeyByOneLanguageFromValue($this->id, self::class, $locale, $key);
             Cache::forget($cacheKey);
-            
+
+
             $tModel = $this->getCurrentLocaleTranslateByFieldKey($key, $locale);
             $tModel->searchable = $this->isTranslateSearchableAttribute($key) ? 1 : 0;
             $tModel->content = is_array($value) ? json_encode($value) : $value;
