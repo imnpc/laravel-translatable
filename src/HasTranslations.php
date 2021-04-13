@@ -106,8 +106,8 @@ trait HasTranslations
         }
 
         return Cache::rememberForever($cacheKey, function () use ($key, $lang) {
-            if($obj = $this->translation_relation->where('content_key', $key)->where('lang',$lang)){
-                return $obj->first();
+            if($obj = $this->translation_relation->where('content_key', $key)->where('lang',$lang)->first()){
+                return $obj;
             }
 
 
