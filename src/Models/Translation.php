@@ -36,6 +36,7 @@ class Translation extends Model
         static::updated(function ($model) {
             Cache::forget(self::getCacheKey($model));
             Cache::forget(self::getCacheKeyByOneLanguage($model));
+            
         });
 
         static::created(function ($model) {
