@@ -270,6 +270,8 @@ trait HasTranslations
                 $cacheKey = Translation::getCacheKeyByOneLanguageFromValue($this->id, self::class, $item['locale'], $item['key']);
                 Cache::forget($cacheKey);
             });
+
+            $this->newTranslations = new Collection();
         }
     }
 
